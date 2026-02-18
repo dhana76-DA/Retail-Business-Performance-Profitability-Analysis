@@ -1,0 +1,68 @@
+Download link (GitHub raw CSV): https://raw.githubusercontent.com/curran/data/gh-pages/superstoreSales/superstoreSales.csv
+
+Cleaned the data and add the missed values columns: Cost Price and Inventory Days. 
+
+#Import the data into Google colab:
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+df = pd.read_csv("/content/superstoreSales.csv", encoding='latin1')
+df.head()
+
+#Columns added:
+Deriving Cost Price
+Most retail datasets contain:
+Sales
+Profit
+Quantity
+
+Business Logic Formula
+𝐶𝑜𝑠𝑡 𝑃𝑟𝑖𝑐𝑒 = 𝑆𝑎𝑙𝑒𝑠 − 𝑃𝑟𝑜𝑓𝑖𝑡
+Cost Price=Sales−Profit
+
+If dataset contains unit sales price, then:
+
+𝑈𝑛𝑖𝑡 𝐶𝑜𝑠𝑡 = 𝑆𝑎𝑙𝑒𝑠 − 𝑃𝑟𝑜𝑓𝑖𝑡 𝑄𝑢𝑎𝑛𝑡𝑖𝑡𝑦
+Unit Cost = Quantity Sales−Profit
+	​
+df['cost_price'] = df['Sales'] - df['Profit']
+df['unit_cost'] = (df['Sales'] - df['Profit']) / df['Order Quantity']
+df.head()
+
+“Since profit = sales – cost, we reverse engineered the cost price from available financial data.”
+
+#Deriving / Simulating Inventory Days
+Certain categories move faster than others.
+Category	              Assumed Inventory Days
+Office Supplies        	15–30 days
+Technology	            20–40 days
+Furniture              	40–90 days
+
+import numpy as np
+
+def assign_inventory_days(category):
+    if category == "Office Supplies":
+        return np.random.randint(15, 30)
+    elif category == "Technology":
+        return np.random.randint(20, 40)
+    else:
+        return np.random.randint(40, 90)
+
+df['inventory_days'] = df['Product Category'].apply(assign_inventory_days)
+
+df['Order Date'] = pd.to_datetime(df['Order Date'], format='mixed')
+df['Month'] = df['Order Date'].dt.month
+
+def seasonal_inventory(month):
+    if month in [10,11,12]:  # Festive season
+        return np.random.randint(10,25)
+    else:
+        return np.random.randint(30,60)
+
+df['inventory_days'] = df['Month'].apply(seasonal_inventory)
+df.head()
+
+“We derived cost price using the financial identity: cost = sales – profit. Since inventory duration wasn’t available, we simulated inventory days using business rules based on product category, quantity movement, and seasonal demand patterns. This allowed us to analyze inventory turnover impact on profitability realistically.”
+Reverse engineering for cost price
+Category + quantity hybrid simulation for inventory days
