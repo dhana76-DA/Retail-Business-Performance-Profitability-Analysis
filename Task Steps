@@ -66,3 +66,45 @@ df.head()
 “We derived cost price using the financial identity: cost = sales – profit. Since inventory duration wasn’t available, we simulated inventory days using business rules based on product category, quantity movement, and seasonal demand patterns. This allowed us to analyze inventory turnover impact on profitability realistically.”
 Reverse engineering for cost price
 Category + quantity hybrid simulation for inventory days
+
+Data Cleaning in SQL
+Import Data into SQL
+
+create database superstore;
+USE superstore;
+
+CREATE TABLE retail_data (
+    order_id VARCHAR(50),
+    order_date DATE,
+    region VARCHAR(50),
+    category VARCHAR(50),
+    sub_category VARCHAR(50),
+    product_name VARCHAR(100),
+    sales DECIMAL(10,2),
+    quantity INT,
+    cost DECIMAL(10,2),
+    profit DECIMAL(10,2),
+    inventory_days INT
+);
+
+Step 3: Correlation Between Inventory Days & Profitability (Python)
+Load Data
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+df = pd.read_csv("retail_data.csv")
+
+#Correlation Analysis
+correlation = df['inventory_days'].corr(df['profit'])
+print("Correlation:", correlation)
+
+#Visualization
+sns.scatterplot(x='inventory_days', y='profit', data=df)
+plt.title("Inventory Days vs Profit")
+plt.show()
+
+#Interpretation
+Negative Correlation → Longer inventory holding reduces profit
+Overstocked items reduce working capital
+Slow-moving products increase storage cost
